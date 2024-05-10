@@ -1,4 +1,5 @@
-URL_LOCAL = "http://127.0.0.1:9090"
+# URL_LOCAL = "http://127.0.0.1:9090"
+URL_LOCAL = "http://26.246.95.16:9090"
 # URL_LOCAL = "https://apievansoft.pythonanywhere.com"
 
 
@@ -12,3 +13,4 @@ URL_API = "http://localhost/apidian/public/api/ubl2.1/"
 
 URL_LOGO = "C:/Users/Desarrollo2/Pictures/convertidor/Motos/Nueva_carpeta/api_new_invoice/media/"
 URL_API_IN_USE = URL_API
+

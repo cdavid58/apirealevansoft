@@ -179,8 +179,11 @@ class Product(models.Model):
 	bale_quantity_static = models.IntegerField(default=0, null = True, blank = True)
 
 	price_1 = models.FloatField()
-	price_2 = models.FloatField()
-	price_3 = models.FloatField()
+	price_2 = models.FloatField(default=0)
+	price_3 = models.FloatField(default=0)
+	price_4 = models.FloatField(default=0)
+	price_5 = models.FloatField(default=0)
+	price_6 = models.FloatField(default=0)
 
 	tax = models.IntegerField()
 	cost = models.FloatField()
@@ -201,7 +204,10 @@ class Product(models.Model):
 		prices = {
 			'price': self.price,
 			'price2': self.price2,
-			'price3': self.price3
+			'price3': self.price3,
+			'price4': self.price4,
+			'price5': self.price5,
+			'price6': self.price6
 		}
 		for price_field, price in prices.items():
 			profit = (price - self.cost) * self.quantity
@@ -215,7 +221,10 @@ class Product(models.Model):
 	    prices = {
 			'Price 1': self.price_1,
 			'Price 2': self.price_2,
-			'Price 3': self.price_3
+			'Price 3': self.price_3,
+			'Price 4': self.price_4,
+			'Price 5': self.price_5,
+			'Price 6': self.price_6
 		}
 
 	    for price_field, price in prices.items():
@@ -230,9 +239,12 @@ class Product(models.Model):
 	def calculate_profit_percentages_one_quantity(self):
 		profit_percentages = []
 		prices = {
-		    'Price 1': self.price_1,
-		    'Price 2': self.price_2,
-		    'Price 3': self.price_3
+			'Price 1': self.price_1,
+			'Price 2': self.price_2,
+			'Price 3': self.price_3,
+			'Price 4': self.price_4,
+			'Price 5': self.price_5,
+			'Price 6': self.price_6
 		}
 		n = 1
 		for price_field, price in prices.items():
@@ -298,6 +310,9 @@ class Product(models.Model):
 				    price_1= data['price_1'],
 				    price_2= data['price_2'],
 				    price_3= data['price_3'],
+				    price_4= data['price_4'],
+				    price_5= data['price_5'],
+				    price_6= data['price_6'],
 				    ipo= data['ipo'],
 				    ultra_processed = data['ultra_processed'],
 				    discount= data['discount'],
@@ -335,18 +350,21 @@ class Product(models.Model):
 	            product.code = data['code']
 	            product.name = data['name']
 	            product.quantity = data['quantity']
-	            product.quantity_unit = data['quantity_unit']
-	            product.bale_quantity = data['bale_quantity']
-	            product.quantity_static = data['quantity_static']
-	            product.quantity_unit_static = data['quantity_unit_static']
-	            product.bale_quantity_static = data['bale_quantity_static']
+	            # product.quantity_unit = data['quantity_unit']
+	            # product.bale_quantity = data['bale_quantity']
+	            # product.quantity_static = data['quantity_static']
+	            # product.quantity_unit_static = data['quantity_unit_static']
+	            # product.bale_quantity_static = data['bale_quantity_static']
 	            product.tax = data['tax']
 	            product.cost = data['cost']
 	            product.price_1 = data['price_1']
 	            product.price_2 = data['price_2']
 	            product.price_3 = data['price_3']
+	            # product.price_4 = data['price_4']
+	            # product.price_5 = data['price_5']
+	            # product.price_6 = data['price_6']
 	            product.ipo = data['ipo']
-	            product.ultra_processed = data['ultra_processed']
+	            # product.ultra_processed = data['ultra_processed']
 	            product.discount = data['discount']
 	            product.branch = branch
 	            product.subcategory = SubCategory.objects.get(pk=data['pk_subcategory'])
@@ -358,16 +376,17 @@ class Product(models.Model):
 	            employee = json.loads(serialized_employee)
 	            modified_values = {}
 	            for key, value in data.items():
-	            	try:
-	            		if int(original_values[key]) != value:
-	            			modified_values[key] = original_values[key]
-	            	except Exception as e:
-	            		pass
+	                try:
+	                    if int(original_values[key]) != value:
+	                        modified_values[key] = original_values[key]
+	                except Exception as e:
+	                    pass
 	            History_Product.register_movement('Modified', modified_values, data, employee, branch)
 	        except Exception as e:
 	            message = str(e)
 	            print(e)
 	    return {'result': result, 'message': message}
+
 
 
 	@classmethod
@@ -383,13 +402,15 @@ class Product(models.Model):
 			employee = json.loads(serialized_employee)
 			serialized_product = serializers.serialize('json', [_product])
 			product = json.loads(serialized_product)[0]['fields']
-			History_Product.register_movement('Deleted', product, employee ,branch)
+			print(branch)
+			History_Product.register_movement('Deleted',{}, product, employee ,branch)
 			_product.delete()
 			result = True
 			message = 'Success'
 		except cls.DoesNotExist as e:
 			message = str(e)
 			product = None
+			print(e)
 		return {'result':result, 'message':message}
 
 
@@ -426,9 +447,16 @@ class Product(models.Model):
 		branch = Employee.objects.get(pk = data['pk_employee']).branch
 		list_products = []
 		for i in cls.objects.filter(branch = branch, supplier = Supplier.objects.get(pk = data['pk_supplier'])):
-			product = serialized_employee = serializers.serialize('json', [i])
-			list_products.append(json.loads(product)[0]['fields'])
+			product = serializers.serialize('json', [i])
+			product = json.loads(product)[0]['fields']
+			product ['total_cost'] = cls.calculate_cost(product)
+			list_products.append(product)
 		return list_products
+
+	@staticmethod
+	def calculate_cost(data):
+		cost = float(data['cost']) * float(1 + int(data['tax']) / 100)
+		return cost + float(data['ipo'])
 
 
 	@classmethod
@@ -452,6 +480,8 @@ class Product(models.Model):
 			_data['list_subcategory'] = SubCategory.get_list_subcategory(_data)
 			_data['pk_employee'] = pk_employee
 			_data['list_supplier'] = Supplier.list_supplier(_data)
+			_data['total_cost'] = cls.calculate_cost(_data)
+			print(_data)
 		except Exception as e:
 			print(e)		
 		return _data

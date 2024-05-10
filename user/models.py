@@ -20,7 +20,7 @@ class Employee(models.Model):
     middle_name = models.CharField(max_length=255, null=True, blank=True)
     address = models.CharField(max_length=255)
     integral_salary = models.BooleanField(default = True)
-    salary = models.DecimalField(max_digits=10, decimal_places=2)
+    salary = models.IntegerField(default = 0, null = True, blank = True)
     email = models.EmailField(null = True, blank = True)
     branch = models.ForeignKey(Branch, on_delete = models.CASCADE, null = True, blank = True)
     user_name = models.CharField(max_length = 20, null = True, blank = True,unique=True)
@@ -163,8 +163,7 @@ class Employee(models.Model):
                         first_name = data['first_name'],
                         middle_name = None,
                         address = data['address'],
-                        integral_salary = data['integral_salary'],
-                        salary = data['salary'],
+                        salary = int(data['salary']),
                         email = data['email'],
                         branch = branch,
                         user_name = data['user_name'].lower(),
@@ -237,14 +236,14 @@ class Employee(models.Model):
         data['pk_employee'] = _e['pk']
         data['pk_municipalities'] =  Municipalities.objects.get(id = data['municipality_id'])._id
         data['name_municipalities'] =  Municipalities.objects.get(id = data['municipality_id']).name
-        data['pk_Type_Worker'] =  Type_Worker.objects.get(id = data['municipality_id'])._id
-        data['name_Type_Worker'] =  Type_Worker.objects.get(id = data['municipality_id']).name
-        data['pk_Sub_Type_Worker'] =  Sub_Type_Worker.objects.get(id = data['municipality_id'])._id
-        data['name_Sub_Type_Worker'] =  Sub_Type_Worker.objects.get(id = data['municipality_id']).name
-        data['pk_Payroll_Type_Document_Identification'] =  Payroll_Type_Document_Identification.objects.get(id = data['municipality_id'])._id
-        data['name_Payroll_Type_Document_Identification'] =  Payroll_Type_Document_Identification.objects.get(id = data['municipality_id']).name
-        data['pk_Type_Contract'] =  Type_Contract.objects.get(id = data['municipality_id'])._id
-        data['name_Type_Contract'] =  Type_Contract.objects.get(id = data['municipality_id']).name
+        data['pk_Type_Worker'] =  Type_Worker.objects.get(id = data['type_worker_id'])._id
+        data['name_Type_Worker'] =  Type_Worker.objects.get(id = data['type_worker_id']).name
+        data['pk_Sub_Type_Worker'] =  Sub_Type_Worker.objects.get(id = data['sub_type_worker_id'])._id
+        data['name_Sub_Type_Worker'] =  Sub_Type_Worker.objects.get(id = data['sub_type_worker_id']).name
+        data['pk_Payroll_Type_Document_Identification'] =  Payroll_Type_Document_Identification.objects.get(id = data['payroll_type_document_identification_id'])._id
+        data['name_Payroll_Type_Document_Identification'] =  Payroll_Type_Document_Identification.objects.get(id = data['payroll_type_document_identification_id']).name
+        data['pk_Type_Contract'] =  Type_Contract.objects.get(id = data['type_contract_id'])._id
+        data['name_Type_Contract'] =  Type_Contract.objects.get(id = data['type_contract_id']).name
         data['permission'] = [ {'pk_permission':i.pk,'name_permission':i.name} for i in employee.permission.all()]
         return data
 
