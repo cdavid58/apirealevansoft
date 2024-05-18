@@ -339,7 +339,10 @@ class Details_Invoice(models.Model):
 		message = None
 		cost = 0
 		try:
-			cost = round((data['price'] / data['quantity']) - (data['ipo'] + data['ultra_processed'] + data['tax']),2)
+			product = Product.objects.get(code = data['code'], branch = invoice.branch)
+			print(product)
+			ultra_processed = product.ultra_processed
+			cost = round((data['price'] / data['quantity']) - (data['ipo'] + ultra_processed + data['tax']),2)
 			details_invoice = cls(
 				code = data['code'],
 				name = data['product'],
@@ -348,10 +351,10 @@ class Details_Invoice(models.Model):
 				cost = cost,
 				price = data['price'],
 				ipo = data['ipo'],
-				ultra_processed = data['ultra_processed'],
+				ultra_processed = ultra_processed,
 				discount = data['discount'],
 				invoice = invoice,
-				tax_value = Product.objects.get(code = data['code'], branch = invoice.branch).tax
+				tax_value = product.tax
 			)
 			details_invoice.save()
 			result = True
